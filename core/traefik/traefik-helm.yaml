@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: traefik
+    repoURL: https://traefik.github.io/charts
+    targetRevision: 33.1.0
+    helm:
+      releaseName: traefik
+      valuesObject:
+        deployment:
+          kind: DaemonSet
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+        service:
+          annotations:
+            service.antrea.io/external-ip-pool: "traefik-external-ip-pool"
+        providers:
+          kubernetesIngress:
+            publishedService:
+              enabled: true
+        ingressRoute:
+          dashboard:
+            enabled: true
+            matchRule: Host(`traefik.talos.int.nai.nu`)
+            entryPoints: ["websecure"]
+            tls:
+              secretName: traefik-dashboard-tls
+        # logs:
+        #   general:
+        #     level: "DEBUG"
+        #   access:
+        #     enabled: true
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: traefik
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

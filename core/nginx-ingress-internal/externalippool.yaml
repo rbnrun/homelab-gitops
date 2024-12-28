@@ -1,0 +1,12 @@
+apiVersion: crd.antrea.io/v1beta1
+kind: ExternalIPPool
+metadata:
+  name: nginx-external-ip-pool
+spec:
+  ipRanges:
+  - start: 10.250.1.106
+    end: 10.250.1.106
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/control-plane
+        operator: DoesNotExist

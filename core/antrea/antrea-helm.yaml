@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: antrea-helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: antrea
+    repoURL: https://charts.antrea.io
+    targetRevision: 2.2.0
+    helm:
+      releaseName: antrea
+      valuesObject:
+        agent:
+          dontLoadKernelModules: true
+          installCNI:
+            securityContext:
+              capabilities: []
+        featureGates:
+          ServiceExternalIP: true
+  ignoreDifferences:
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: bgppolicies.crd.antrea.io
+      jsonPointers:
+        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/advertisements/properties/egress/properties
+        - /spec/versions/0/schema/openAPIV3Schema/properties/spec/properties/advertisements/properties/pod/properties
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: kube-system
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

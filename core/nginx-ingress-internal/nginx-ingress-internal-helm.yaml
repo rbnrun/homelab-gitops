@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-ingress-helm
+  namespace: argocd
+spec:
+  project: default
+  source:
+    chart: nginx-ingress
+    repoURL: https://helm.nginx.com/stable
+    targetRevision: 1.4.2
+    helm:
+      releaseName: nginx-ingress
+      valuesObject:
+        prometheus:
+          create: false
+        controller:
+          ingressClass:
+            name: nginx
+          config:
+            entries:
+              hsts: "True"
+              ssl-protocols: "TLSv1.3"
+              http2: "True"
+          enableTLSPassthrough: true
+          service:
+            annotations:
+              service.antrea.io/external-ip-pool: "nginx-external-ip-pool"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: nginx-ingress
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,25 @@
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: proxmox-csi-plugin
+spec:
+  secretStoreRef:
+    kind: SecretStore
+    name: vault
+  target:
+    name: proxmox-csi-plugin
+    template:
+      engineVersion: v2
+      data:
+        config.yaml: |
+          clusters:
+            - url: https://pve-01.int.nai.nu:8006/api2/json
+              insecure: false
+              token_id: "kubernetes-csi@pve!csi"
+              token_secret: "{{ .token_secret }}"
+              region: pvec-01
+  data:
+  - secretKey: token_secret
+    remoteRef:
+      key: csi-proxmox/proxmox-config
+      property: token_secret

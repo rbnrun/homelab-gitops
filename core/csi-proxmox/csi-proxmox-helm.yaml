@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: proxmox-csi-plugin
+spec:
+  project: default
+  source:
+    chart: proxmox-csi-plugin
+    repoURL: ghcr.io/sergelogvinov/charts
+    targetRevision: 0.3.0
+    helm:
+      releaseName: proxmox-csi-plugin
+      valuesObject:
+        existingConfigSecret: proxmox-csi-plugin
+        storageClass:
+          - name: proxmox-data-xfs
+            storage: data-01
+            reclaimPolicy: Delete
+            fstype: xfs
+            annotations:
+              storageclass.kubernetes.io/is-default-class: "true"
+
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: csi-proxmox
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
