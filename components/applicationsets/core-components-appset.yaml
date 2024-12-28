@@ -7,7 +7,7 @@ spec:
   generators:
   - git:
       repoURL: https://github.com/rbnrun/homelab-gitops
-      revision: main
+      revision: master
       directories:
       - path: core/*
   template:
@@ -29,7 +29,7 @@ spec:
           - SkipDryRunOnMissingResource=true
       source:
         repoURL: https://github.com/rbnrun/homelab-gitops
-        targetRevision: main
+        targetRevision: master
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
